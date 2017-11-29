@@ -8,7 +8,12 @@ setup(
     author='Ben Glick',
     author_email='glick@lclark.edu',
     url='https://github.com/benhg/parsl-dag-vis',
-    download_url='download link you saved',
+    download_url='https://github.com/benhg/parsl-dag-vis/archive/v0.1-alpha.zip',
     keywords=['parsl', 'jupyter', 'visualization'],
+    install_requires=[
+        'parsl',
+        'jupyter',
+        'ipython'
+    ],
     classifiers=[],
 )
