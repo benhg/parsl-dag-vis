@@ -5,6 +5,7 @@ import json
 
 class DFKListener():
     def __init__(self, dfk):
+        """Set necessary global options and variables"""
         self.dfk = dfk
         self.nodes_list = []
         self.edges_list = []
@@ -15,7 +16,7 @@ class DFKListener():
             States.running: "Lime",
             States.done: "Green",
             States.failed: "Red",
-            States.dep_fail: "orange"
+            States.dep_fail: "Orange"
         }
         self.state_lookup_table = {
             States.unsched: "Unscheduled",
@@ -29,13 +30,17 @@ class DFKListener():
 
     @property
     def nodes(self):
+        """define list of nodes as an instance variable"""
         return self.nodes_list
 
     @property
     def edges(self):
+        """Define list of edges as an instance variable"""
         return self.edges_list
 
     def create_nodes(self, dfke=None):
+        """Go through dfk's task listing and 
+        create a node in our graph for each task"""
         dfk = dfke if dfke else self.dfk
         for task in dfk.tasks:
             state = dfk.tasks[task]['status']
@@ -48,6 +53,7 @@ class DFKListener():
         return self.nodes_list
 
     def create_edges(self, dfke=None):
+        """Generate edges of dependency graph from list of tasks"""
         dfk = dfke if dfke else self.dfk
         for task in dfk.tasks:
             deps = state = dfk.tasks[task]['depends']
@@ -57,11 +63,14 @@ class DFKListener():
         return self.edges
 
     def update(self):
+        """Update lists of nodes and edges"""
         self.create_nodes()
         self.create_edges()
         return json.dumps({"nodes": self.nodes, "edges": self.edges})
 
     def set_javascript(self):
+        """Update lists and send data to javascript so it can be rendered
+        as an interactive graph"""
         self.update()
         nodes = json.dumps(self.nodes)
         edges = json.dumps(self.edges)
@@ -70,6 +79,7 @@ class DFKListener():
                    """.format(nodes, edges)))
 
     def show_window(self):
+        """Create interactive graph object and populate it with live data"""
         display(Javascript("""require.config({paths: {vis: 'https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min'}});
 require(['vis'], function (vis){
     element.append('<div id="mynetwork" style="width:950px;height:750px;border:1px solid lightgray;"></div>');

@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='parsl_dag_vis',
     packages=['dag_vis'],
-    version='0.1',  # Ideally should be same as your GitHub release tag varsion
+    version='0.1.1',
     description='DAG visualization code to be run from Jupyter notebooks to visualize data flow dependency graphs of workflows',
     author='Ben Glick',
     author_email='glick@lclark.edu',
