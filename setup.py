@@ -1,9 +1,9 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='parsl_dag_vis',
     packages=['dag_vis'],
-    version='0.1.2',
+    version='0.1.6',
     description='DAG visualization code to be run from Jupyter notebooks to visualize data flow dependency graphs of workflows',
     author='Ben Glick',
     author_email='glick@lclark.edu',

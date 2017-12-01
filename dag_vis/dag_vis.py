@@ -1,6 +1,7 @@
 from parsl.dataflow.states import States
 from IPython.core.display import Javascript, HTML, Javascript, display
 import json
+from threading import Thread
 
 
 class DFKListener():
@@ -48,7 +49,8 @@ class DFKListener():
                 if dfk.tasks[task]["exec_fu"]._exception is not None:
                     state = States.failed
             tid = dfk.tasks[task]['app_fu'].tid
-            task = {"id": tid, "label": str(tid), "color": self.color_lookup_table[state], "font": {
+            fname = dfk.tasks[task]['func'].__name__
+            task = {"id": tid, "label": "{}\n{}\n{}".format(str(tid), fname, self.state_lookup_table[state]), "color": self.color_lookup_table[state], "font": {
                 "background": "white"}, "title": self.state_lookup_table[state]}
             self.nodes_list.append(task)
             self.nodes_list = list(
@@ -67,6 +69,8 @@ class DFKListener():
 
     def update(self):
         """Update lists of nodes and edges"""
+        self.nodes_list = []
+        self.edges_list = []
         self.create_nodes()
         self.create_edges()
         return json.dumps({"nodes": self.nodes, "edges": self.edges})
@@ -85,7 +89,9 @@ class DFKListener():
         """Create interactive graph object and populate it with live data"""
         display(Javascript("""require.config({paths: {vis: 'https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min'}});
 require(['vis'], function (vis){
-    element.append('<div id="mynetwork" style="width:950px;height:750px;border:1px solid lightgray;"></div>');
+    if (document.getElementById("mynetwork") == null) {
+        element.append('<div id="mynetwork" style="width:950px;height:750px;border:1px solid lightgray;"></div>');
+    }
     var nodes = new vis.DataSet(window.nodesList);
     var edges = new vis.DataSet(window.edgesList);
     var container = document.getElementById('mynetwork');
@@ -113,3 +119,18 @@ require(['vis'], function (vis){
              
      });
 });"""))
+
+    def update_thread_handler(self, secs):
+        """Handler to autoupdate the rendering of the dag"""
+        import time
+        while True:
+            self.set_javascript()
+            self.show_window()
+            time.sleep(secs)
+
+    def auto_updater(self, time):
+        """Opens a thread to autoupdate the graph"""
+        threads = []
+        t = Thread(target=self.update_thread_handler, args=(time,))
+        threads.append(t)
+        t.start()
