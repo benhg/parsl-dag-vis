@@ -44,8 +44,11 @@ class DFKListener():
         dfk = dfke if dfke else self.dfk
         for task in dfk.tasks:
             state = dfk.tasks[task]['status']
+            if state == States.done:
+                if dfk.tasks[task]["exec_fu"]._exception is not None:
+                    state = States.failed
             tid = dfk.tasks[task]['app_fu'].tid
-            task = {"id": tid, "label": tid, "color": self.color_lookup_table[state], "font": {
+            task = {"id": tid, "label": str(tid), "color": self.color_lookup_table[state], "font": {
                 "background": "white"}, "title": self.state_lookup_table[state]}
             self.nodes_list.append(task)
             self.nodes_list = list(
@@ -75,7 +78,7 @@ class DFKListener():
         nodes = json.dumps(self.nodes)
         edges = json.dumps(self.edges)
         display(Javascript("""window.nodesList={};
-                      window.edgesList={};
+                              window.edgesList={};
                    """.format(nodes, edges)))
 
     def show_window(self):
